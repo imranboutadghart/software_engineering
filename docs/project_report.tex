@@ -1,0 +1,465 @@
+\documentclass[12pt,a4paper]{article}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage[french]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{geometry}
+\usepackage{fancyhdr}
+\usepackage{tocloft}
+\usepackage{titlesec}
+
+% Page geometry
+\geometry{left=2.5cm, right=2.5cm, top=2.5cm, bottom=2.5cm}
+
+% Header and footer
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Bug Predictor}
+\fancyhead[R]{\thepage}
+\fancyfoot[C]{Mini-Projet - Génie Logiciel}
+
+% Hyperref setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    pdftitle={Bug Predictor - Rapport de Projet},
+    pdfpagemode=FullScreen,
+}
+
+% Listings setup for code
+\lstset{
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    language=Python,
+    showstringspaces=false,
+    commentstyle=\color{gray},
+    keywordstyle=\color{blue},
+    stringstyle=\color{red}
+}
+
+% Title information
+\title{\textbf{Bug Predictor} \\ 
+\Large Outil de Prédiction de Fichiers à Risque}
+\author{Mini-Projet de Génie Logiciel}
+\date{\today}
+
+\begin{document}
+
+% Title page
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+% Table of contents
+\tableofcontents
+\newpage
+
+% Start page numbering
+\setcounter{page}{1}
+
+\section{Introduction Générale}
+
+Dans le domaine du développement logiciel moderne, la qualité du code et la prévention des bugs constituent des enjeux majeurs pour garantir la fiabilité et la maintenabilité des applications. Les bugs non détectés peuvent entraîner des coûts importants, tant en termes de temps de développement que de qualité du produit final.
+
+\subsection{Problématique}
+
+Les équipes de développement font face à plusieurs défis concernant la qualité du code :
+\begin{itemize}
+    \item Identification tardive des zones à risque dans le code
+    \item Difficulté à prioriser les efforts de refactoring et de tests
+    \item Absence d'indicateurs préventifs sur la qualité du code
+    \item Manque d'outils automatisés pour l'analyse prédictive des bugs
+\end{itemize}
+
+\subsection{Objectif du Projet}
+
+Ce projet vise à développer \textbf{Bug Predictor}, un outil automatisé capable d'identifier les fichiers à risque dans un projet logiciel en combinant l'analyse de l'historique Git et l'analyse de la complexité du code. L'objectif principal est de fournir aux développeurs un tableau de bord interactif permettant de visualiser les fichiers les plus susceptibles de contenir des bugs.
+
+\subsection{Contributions}
+
+Les principales contributions de ce projet sont :
+\begin{itemize}
+    \item Development d'un moteur d'analyse de risque combinant plusieurs métriques
+    \item Création d'un service d'analyse de l'historique Git pour identifier les fichiers fréquemment modifiés
+    \item Implémentation d'un calculateur de complexité cyclomatique
+    \item Développement d'une interface web moderne pour visualiser les résultats
+\end{itemize}
+
+\newpage
+
+\section{Contexte Général du Projet}
+
+\subsection{Contexte Scientifique}
+
+La prédiction de bugs est un domaine de recherche actif dans le génie logiciel. Plusieurs études ont démontré que :
+\begin{itemize}
+    \item Les fichiers fréquemment modifiés sont plus susceptibles de contenir des bugs
+    \item La complexité cyclomatique élevée est corrélée avec un taux de bugs plus important
+    \item L'historique des modifications (churn) peut servir d'indicateur de qualité du code
+\end{itemize}
+
+\subsection{Technologies Utilisées}
+
+Le projet \textbf{Bug Predictor} s'appuie sur un ensemble de technologies modernes :
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|l|p{7cm}|}
+\hline
+\textbf{Catégorie} & \textbf{Technologie} & \textbf{Utilisation} \\
+\hline
+Backend & Python 3.x & Langage principal de développement \\
+\hline
+Framework Web & FastAPI & API REST et serveur web asynchrone \\
+\hline
+Analyse Git & GitPython & Extraction des métriques d'historique \\
+\hline
+Analyse Code & Radon & Calcul de la complexité cyclomatique \\
+\hline
+Frontend & HTML/TailwindCSS & Interface utilisateur moderne \\
+\hline
+Templating & Jinja2 & Génération dynamique des pages HTML \\
+\hline
+\end{tabular}
+\caption{Stack technologique du projet}
+\end{table}
+
+\subsection{Fonctionnalités Principales}
+
+Le système offre les fonctionnalités suivantes :
+
+\begin{enumerate}
+    \item \textbf{Analyse de l'Historique Git} : Identification des fichiers fréquemment impliqués dans les corrections de bugs
+    \item \textbf{Analyse de Complexité} : Calcul de la complexité cyclomatique pour évaluer la maintenabilité
+    \item \textbf{Calcul du Score de Risque} : Combinaison des métriques de churn et de complexité
+    \item \textbf{Dashboard Web} : Interface interactive pour visualiser les résultats d'analyse
+\end{enumerate}
+
+\newpage
+
+\section{Analyse et Conception}
+
+\subsection{Analyse des Besoins}
+
+Le backlog produit a identifié les user stories suivantes :
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|p{9cm}|l|}
+\hline
+\textbf{ID} & \textbf{Description} & \textbf{Priorité} \\
+\hline
+US-01 & Analyser l'historique Git pour identifier les fichiers instables & Haute \\
+\hline
+US-02 & Calculer la complexité cyclomatique des fichiers & Haute \\
+\hline
+US-03 & Calculer un score de risque unique par fichier & Haute \\
+\hline
+US-04 & Fournir une interface web pour visualiser les fichiers à risque & Moyenne \\
+\hline
+US-05 & Exporter les résultats d'analyse & Basse \\
+\hline
+\end{tabular}
+\caption{Backlog produit - User Stories}
+\end{table}
+
+\subsection{Architecture Logique}
+
+L'architecture du système est organisée en plusieurs couches :
+
+\begin{itemize}
+    \item \textbf{Couche Présentation} : Interface web utilisant FastAPI et Jinja2
+    \item \textbf{Couche Métier (Services)} : 
+    \begin{itemize}
+        \item GitAnalysisService : Analyse de l'historique Git
+        \item ComplexityService : Calcul de la complexité
+        \item RiskScorer : Calcul du score de risque
+    \end{itemize}
+    \item \textbf{Couche Modèle} : Structures de données (FileAnalysis, ProjectAnalysis)
+\end{itemize}
+
+Le système suit une architecture MVC (Model-View-Controller) adaptée au contexte FastAPI.
+
+\subsection{Architecture Physique}
+
+L'application est déployée en tant qu'application web monolithique :
+
+\begin{itemize}
+    \item \textbf{Serveur Web} : FastAPI avec Uvicorn (serveur ASGI)
+    \item \textbf{Port d'écoute} : 8000 (par défaut)
+    \item \textbf{Interface} : http://localhost:8000
+\end{itemize}
+
+\subsection{Conception Détaillée}
+
+\subsubsection{Modèles de Données}
+
+Le système définit deux modèles principaux :
+
+\begin{lstlisting}[language=Python]
+class FileAnalysis:
+    filename: str
+    churn_count: int
+    complexity_score: float
+    risk_score: float
+
+class ProjectAnalysis:
+    project_path: str
+    total_files: int
+    files: List[FileAnalysis]
+\end{lstlisting}
+
+\subsubsection{Services}
+
+\textbf{GitAnalysisService} : Extrait les métriques de churn à partir de l'historique Git du projet.
+
+\textbf{ComplexityService} : Utilise Radon pour calculer la complexité cyclomatique de chaque fichier.
+
+\textbf{RiskScorer} : Combine les métriques de churn et de complexité pour générer un score de risque unifié.
+
+\newpage
+
+\section{Approche Proposée}
+
+\subsection{Méthodologie de Développement}
+
+Le projet a adopté une approche agile avec les éléments suivants :
+
+\begin{itemize}
+    \item \textbf{Méthodologie} : Scrum adapté pour un mini-projet
+    \item \textbf{Sprints} : Organisation en sprints courts
+    \item \textbf{Documentation} : Product Backlog et Sprint Backlog
+    \item \textbf{Livraison} : Approche itérative et incrémentale
+\end{itemize}
+
+\subsection{Algorithme de Calcul du Risque}
+
+L'approche proposée pour calculer le score de risque combine deux métriques principales :
+
+\begin{enumerate}
+    \item \textbf{Churn Count} : Nombre de modifications du fichier dans l'historique Git
+    \item \textbf{Complexity Score} : Complexité cyclomatique moyenne du fichier
+\end{enumerate}
+
+La formule de calcul du risque est une combinaison pondérée de ces deux métriques :
+
+\begin{equation}
+    RiskScore = f(ChurnCount, ComplexityScore)
+\end{equation}
+
+où $f$ est une fonction qui normalise et combine les deux métriques pour produire un score de risque unifié.
+
+\subsection{Stratégie d'Analyse}
+
+Le processus d'analyse suit les étapes suivantes :
+
+\begin{enumerate}
+    \item Réception du chemin du projet à analyser
+    \item Extraction des métriques de churn via GitPython
+    \item Parcours récursif du répertoire du projet
+    \item Pour chaque fichier :
+    \begin{itemize}
+        \item Récupération du churn count
+        \item Calcul de la complexité cyclomatique
+        \item Calcul du score de risque
+    \end{itemize}
+    \item Tri des fichiers par score de risque décroissant
+    \item Présentation des résultats dans l'interface web
+\end{enumerate}
+
+\subsection{Filtrage Intelligent}
+
+Le système exclut automatiquement certains répertoires de l'analyse :
+\begin{itemize}
+    \item \texttt{.git} : Dossier de contrôle de version
+    \item \texttt{\_\_pycache\_\_} : Cache Python
+    \item \texttt{venv} / \texttt{.venv} : Environnements virtuels
+    \item \texttt{node\_modules} : Dépendances Node.js
+    \item \texttt{.idea} / \texttt{.vscode} : Fichiers IDE
+\end{itemize}
+
+Cette approche garantit que seuls les fichiers sources pertinents sont analysés.
+
+\newpage
+
+\section{Mise en Œuvre}
+
+\subsection{Structure du Projet}
+
+L'organisation des fichiers du projet est la suivante :
+
+\begin{verbatim}
+BugPredictor/
+├── app/
+│   ├── __init__.py
+│   ├── main.py              # Point d'entrée FastAPI
+│   ├── models/
+│   │   └── analysis_model.py
+│   ├── services/
+│   │   ├── git_analysis.py
+│   │   ├── complexity.py
+│   │   └── risk.py
+│   └── templates/
+│       └── index.html
+├── docs/
+│   ├── design/
+│   │   ├── architecture.md
+│   │   └── class_diagram.md
+│   └── scrum/
+│       ├── product_backlog.md
+│       └── sprint_backlog.md
+├── tests/
+├── requirements.txt
+└── README.md
+\end{verbatim}
+
+\subsection{Implémentation des Services}
+
+\subsubsection{Service d'Analyse Git}
+
+Le \texttt{GitAnalysisService} extrait les métriques de churn en analysant l'historique des commits Git. Chaque fichier modifié est comptabilisé pour déterminer sa fréquence de changement.
+
+\subsubsection{Service de Complexité}
+
+Le \texttt{ComplexityService} utilise la bibliothèque Radon pour calculer la complexité cyclomatique de McCabe. Cette métrique mesure le nombre de chemins indépendants dans le code.
+
+\subsubsection{Calculateur de Risque}
+
+Le \texttt{RiskScorer} combine les deux métriques précédentes pour produire un score de risque. Les fichiers avec un churn élevé et une complexité importante reçoivent les scores les plus élevés.
+
+\subsection{Interface Web}
+
+\subsubsection{Application FastAPI}
+
+L'application principale (\texttt{main.py}) expose deux endpoints :
+
+\begin{itemize}
+    \item \texttt{GET /} : Affiche la page d'accueil avec le formulaire d'analyse
+    \item \texttt{POST /analyze} : Lance l'analyse d'un projet et affiche les résultats
+\end{itemize}
+
+\subsubsection{Template HTML}
+
+Le template utilise Jinja2 pour générer dynamiquement la page HTML avec :
+\begin{itemize}
+    \item Formulaire de saisie du chemin du projet
+    \item Tableau des résultats triés par score de risque
+    \item Affichage des métriques pour chaque fichier
+\end{itemize}
+
+\subsection{Gestion des Dépendances}
+
+Le fichier \texttt{requirements.txt} spécifie les dépendances du projet :
+
+\begin{lstlisting}
+fastapi
+uvicorn
+gitpython
+radon
+jinja2
+python-multipart
+\end{lstlisting}
+
+\subsection{Installation et Exécution}
+
+Pour installer et exécuter le projet :
+
+\begin{enumerate}
+    \item Installation des dépendances : \texttt{pip install -r requirements.txt}
+    \item Lancement du serveur : \texttt{uvicorn app.main:app --reload}
+    \item Accès à l'interface : \texttt{http://localhost:8000}
+\end{enumerate}
+
+\subsection{Tests}
+
+Un plan de tests a été élaboré pour valider le fonctionnement du système :
+\begin{itemize}
+    \item Tests unitaires des services (GitAnalysisService, ComplexityService, RiskScorer)
+    \item Tests d'intégration de l'API FastAPI
+    \item Tests de validation de l'interface utilisateur
+\end{itemize}
+
+\newpage
+
+\section{Conclusion Générale}
+
+\subsection{Récapitulatif}
+
+Ce projet a permis de développer \textbf{Bug Predictor}, un outil d'analyse prédictive des bugs pour les projets logiciels. L'outil combine avec succès l'analyse de l'historique Git et l'analyse de la complexité du code pour identifier les fichiers à risque.
+
+\subsection{Objectifs Atteints}
+
+Les objectifs principaux du projet ont été réalisés :
+
+\begin{itemize}
+    \item[$\checkmark$] Implémentation d'un moteur d'analyse de l'historique Git
+    \item[$\checkmark$] Calcul de la complexité cyclomatique avec Radon
+    \item[$\checkmark$] Création d'un algorithme de scoring de risque
+    \item[$\checkmark$] Développement d'une interface web interactive avec FastAPI
+    \item[$\checkmark$] Documentation complète du projet (architecture, backlog, tests)
+\end{itemize}
+
+\subsection{Apport Pédagogique}
+
+Ce mini-projet a permis de mettre en pratique plusieurs concepts du génie logiciel :
+
+\begin{itemize}
+    \item \textbf{Méthodologie Agile} : Utilisation de Scrum avec backlog et sprints
+    \item \textbf{Architecture Logicielle} : Conception d'une architecture en couches
+    \item \textbf{Développement Web} : Utilisation de FastAPI et des templates Jinja2
+    \item \textbf{Analyse de Code} : Application de métriques logicielles (complexité, churn)
+    \item \textbf{Intégration Git} : Exploitation de l'historique de version
+\end{itemize}
+
+\subsection{Limites et Perspectives}
+
+\subsubsection{Limites Actuelles}
+
+\begin{itemize}
+    \item L'algorithme de scoring pourrait être affiné avec des pondérations ajustables
+    \item Support limité aux projets Git uniquement
+    \item Absence de fonctionnalité d'export des résultats (US-05 non implémentée)
+    \item Pas de persistance des analyses effectuées
+\end{itemize}
+
+\subsubsection{Perspectives d'Évolution}
+
+Plusieurs améliorations pourraient être apportées au projet :
+
+\begin{enumerate}
+    \item \textbf{Machine Learning} : Entraîner un modèle de prédiction basé sur des données historiques réelles de bugs
+    \item \textbf{Métriques Supplémentaires} : 
+    \begin{itemize}
+        \item Taux de couverture de tests
+        \item Nombre de dépendances
+        \item Taille des fichiers (lignes de code)
+    \end{itemize}
+    \item \textbf{Visualisation Avancée} : 
+    \begin{itemize}
+        \item Graphiques de tendance
+        \item Cartes thermiques du code
+        \item Évolution du risque dans le temps
+    \end{itemize}
+    \item \textbf{Intégration CI/CD} : Intégration dans les pipelines de développement
+    \item \textbf{Support Multi-VCS} : Extension à SVN, Mercurial, etc.
+    \item \textbf{Export et Reporting} : Génération de rapports PDF/Excel
+    \item \textbf{API REST Complète} : Endpoints pour une utilisation programmatique
+\end{enumerate}
+
+\subsection{Conclusion Finale}
+
+Le projet \textbf{Bug Predictor} démontre qu'il est possible de créer des outils d'analyse prédictive efficaces en combinant des métriques logicielles simples mais pertinentes. L'outil développé peut aider les équipes de développement à identifier proactivement les zones à risque dans leur code et à prioriser leurs efforts de refactoring et de tests.
+
+Ce projet illustre également l'importance d'une approche méthodique dans le développement logiciel, depuis l'analyse des besoins jusqu'à la mise en œuvre, en passant par une conception rigoureuse.
+
+L'approche modulaire adoptée facilite l'évolution future du système et l'ajout de nouvelles fonctionnalités. Bug Predictor constitue ainsi une base solide pour un outil plus avancé de prédiction et de prévention des bugs dans les projets logiciels.
+
+\end{document}
